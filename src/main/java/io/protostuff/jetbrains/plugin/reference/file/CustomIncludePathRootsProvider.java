@@ -17,7 +17,7 @@ class CustomIncludePathRootsProvider implements FilePathReferenceProvider.Source
     @Override
     public VirtualFile[] getSourceRoots(Module module, ProtoPsiFileRoot psiFileRoot) {
         List<VirtualFile> result = new ArrayList<>();
-        ProtobufSettings settings = ProtobufSettings.getInstance();
+        ProtobufSettings settings = ProtobufSettings.getInstance(module.getProject());
         List<String> includePaths = settings.getIncludePaths();
         for (String includePath : includePaths) {
             VirtualFile path = LocalFileSystem.getInstance().findFileByPath(includePath);

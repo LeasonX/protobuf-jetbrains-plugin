@@ -5,6 +5,9 @@ import javax.swing.Icon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * http://www.jetbrains.org/intellij/sdk/docs/tutorials/custom_language_support/language_and_filetype.html
+ */
 public class ProtoFileType extends LanguageFileType {
 
     public static final String FILE_EXTENSION = "proto";

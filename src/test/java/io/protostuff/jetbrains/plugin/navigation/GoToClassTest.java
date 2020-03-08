@@ -122,7 +122,7 @@ public class GoToClassTest extends LightCodeInsightFixtureTestCase {
 
     public void testGoToMessage_inCustomIncludePath() throws Exception {
         File includePathRoot = tempDir;
-        ProtobufSettings settings = ProtobufSettings.getInstance();
+        ProtobufSettings settings = ProtobufSettings.getInstance(getProject());
         settings.setIncludePaths(Collections.singletonList(includePathRoot.getAbsolutePath()));
         File proto = new File(tempDir.getPath() + "/test.proto");
         Writer writer = new BufferedWriter(new FileWriter(proto));
