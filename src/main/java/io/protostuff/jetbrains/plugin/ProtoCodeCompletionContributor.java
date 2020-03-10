@@ -7,17 +7,21 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.tree.IElementType;
 import io.protostuff.compiler.parser.ProtoLexer;
 import io.protostuff.compiler.parser.ProtoParser;
+import io.protostuff.jetbrains.plugin.completion.TypeReferenceCompletionProvider;
 import io.protostuff.jetbrains.plugin.completion.FieldModifierCompletionProvider;
+import io.protostuff.jetbrains.plugin.completion.FileReferenceCompletionProvider;
 import io.protostuff.jetbrains.plugin.completion.SyntaxNameCompletionProvider;
 import io.protostuff.jetbrains.plugin.completion.TopLevelStartKeyWordsCompletionProvider;
-import io.protostuff.jetbrains.plugin.completion.TypeReferenceCompletionProvider;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
+
+import java.util.List;
 
 public class ProtoCodeCompletionContributor extends CompletionContributor {
 
     public ProtoCodeCompletionContributor() {
         handleAtSyntaxName();
         handleInProtoRootNode();
+        handleAtFileReference();
         handleInCurly();
         handleAfterSemicolon();
 
@@ -26,12 +30,12 @@ public class ProtoCodeCompletionContributor extends CompletionContributor {
         handleAfterFieldModifier(ProtoLexer.REPEATED);
     }
 
-    void handleAtSyntaxName() {
+    void handleAtFileReference() {
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ProtoParserDefinition.token(ProtoLexer.STRING_VALUE))
-                        .withParent(PlatformPatterns.psiElement(ProtoParserDefinition.rule(ProtoParser.RULE_syntaxName)))
+                        .withParent(PlatformPatterns.psiElement(ProtoParserDefinition.rule(ProtoParser.RULE_fileReference)))
                         .withLanguage(ProtoLanguage.INSTANCE),
-                new SyntaxNameCompletionProvider()
+                new FileReferenceCompletionProvider()
         );
     }
 
@@ -42,6 +46,15 @@ public class ProtoCodeCompletionContributor extends CompletionContributor {
                         .withSuperParent(2, ProtoRootNode.class)
                         .withLanguage(ProtoLanguage.INSTANCE),
                 new TopLevelStartKeyWordsCompletionProvider()
+        );
+    }
+
+    void handleAtSyntaxName() {
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(ProtoParserDefinition.token(ProtoLexer.STRING_VALUE))
+                        .withParent(PlatformPatterns.psiElement(ProtoParserDefinition.rule(ProtoParser.RULE_syntaxName)))
+                        .withLanguage(ProtoLanguage.INSTANCE),
+                new SyntaxNameCompletionProvider()
         );
     }
 
