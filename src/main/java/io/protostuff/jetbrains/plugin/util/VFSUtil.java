@@ -11,40 +11,43 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class VFSUtil {
 
-    private final static List<String> CACHE_FILE_RELATIVE_PATHS = new CopyOnWriteArrayList<>();
+    private final static Map<Project, List<String>> CACHE_FILE_RELATIVE_PATHS_MAP = new ConcurrentHashMap<>();
 
     private VFSUtil() {
         throw new UnsupportedOperationException("Utility class can not be instantiated");
     }
 
-    public static List<String> getFilesRelativePathsOfFolder() {
-        return CACHE_FILE_RELATIVE_PATHS;
+    public static List<String> getFilesRelativePathsOfFolder(Project project) {
+        return CACHE_FILE_RELATIVE_PATHS_MAP.get(project);
     }
 
-    public static void flushProtoPathVFSCache(String folderPath) {
-        CACHE_FILE_RELATIVE_PATHS.clear();
+    public static void flushProtoPathVFSCache(Project project, String folderPath) {
+        List<String> projectCacheFileRelativePaths = new LinkedList<>();
         Path path = Paths.get(folderPath);
         VirtualFile folderVirtualFile = VfsUtil.findFile(path, true);
         if (null != folderVirtualFile) {
             VfsUtil.processFileRecursivelyWithoutIgnored(folderVirtualFile, virtualFile -> {
                 if (ProtoFileType.FILE_EXTENSION.equals(virtualFile.getExtension())) {
-                    CACHE_FILE_RELATIVE_PATHS.add(path.relativize(Paths.get(virtualFile.getPath())).toString());
+                    projectCacheFileRelativePaths.add(path.relativize(Paths.get(virtualFile.getPath())).toString());
                 }
                 return true;
             });
         }
+        CACHE_FILE_RELATIVE_PATHS_MAP.put(project, projectCacheFileRelativePaths);
     }
 
     public static void addVFSChangeListener(Project project, String protoFolderPath) {
         project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
-                flushProtoPathVFSCache(protoFolderPath);
+                flushProtoPathVFSCache(project, protoFolderPath);
             }
         });
     }

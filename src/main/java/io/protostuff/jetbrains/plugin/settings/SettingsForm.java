@@ -62,7 +62,7 @@ public class SettingsForm {
             FileChooser.chooseFile(descriptor, this.project, null, selectedFolder -> {
                 String path = selectedFolder.getPath();
                 if (null != project) {
-                    VFSUtil.flushProtoPathVFSCache(path);
+                    VFSUtil.flushProtoPathVFSCache(project,path);
                     VFSUtil.addVFSChangeListener(project, path);
                 }
                 includePathModel.add(path);

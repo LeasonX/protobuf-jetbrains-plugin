@@ -19,7 +19,7 @@ public class FileReferenceCompletionProvider extends CompletionProvider<Completi
                                   @NotNull ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
         //ensure get newest setting always
-        List<String> filesRelativePathsOfFolder = VFSUtil.getFilesRelativePathsOfFolder();
+        List<String> filesRelativePathsOfFolder = VFSUtil.getFilesRelativePathsOfFolder(completionParameters.getPosition().getProject());
         completionResultSet.addAllElements(filesRelativePathsOfFolder.stream()
                 .map(ProtoCompletionProviderUtil::lookupElementWithSlash)
                 .collect(Collectors.toSet()));
