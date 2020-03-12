@@ -7,13 +7,12 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.CollectionListModel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
 
+import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -62,6 +61,10 @@ public class SettingsForm {
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
             FileChooser.chooseFile(descriptor, this.project, null, selectedFolder -> {
                 String path = selectedFolder.getPath();
+                if (null != project) {
+                    VFSUtil.flushProtoPathVFSCache(path);
+                    VFSUtil.addVFSChangeListener(project, path);
+                }
                 includePathModel.add(path);
             });
         });
@@ -94,6 +97,22 @@ public class SettingsForm {
         }
 
     }
+
+    /**
+     * ProtobufSettings settings = ProtobufSettings.getInstance(project);
+     * List<String> includePaths = settings.getIncludePaths();
+     * if (!includePaths.isEmpty()) {
+     * String protoFolderPath = includePaths.get(0);
+     * FileUtil.flushProtoPathVFSCache(protoFolderPath);
+     * project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+     *
+     * @return
+     * @Override public void after(@NotNull List<? extends VFileEvent> events) {
+     * FileUtil.flushProtoPathVFSCache(protoFolderPath);
+     * }
+     * });
+     * }
+     */
 
     public JPanel getPanel() {
         return panel;

@@ -2,6 +2,7 @@ package io.protostuff.jetbrains.plugin;
 
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.tree.IElementType;
