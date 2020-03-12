@@ -14,8 +14,6 @@ import io.protostuff.jetbrains.plugin.completion.SyntaxNameCompletionProvider;
 import io.protostuff.jetbrains.plugin.completion.TopLevelStartKeyWordsCompletionProvider;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
 
-import java.util.List;
-
 public class ProtoCodeCompletionContributor extends CompletionContributor {
 
     public ProtoCodeCompletionContributor() {
