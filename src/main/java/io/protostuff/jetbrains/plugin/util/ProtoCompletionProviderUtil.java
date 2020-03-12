@@ -6,8 +6,6 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import io.protostuff.jetbrains.plugin.Icons;
 
-import javax.swing.plaf.metal.MetalIconFactory;
-
 public final class ProtoCompletionProviderUtil {
     public static LookupElement lookupElementWithSpace(String keyword) {
         return LookupElementBuilder.create(keyword).withInsertHandler(AddSpaceInsertHandler.INSTANCE);
@@ -23,9 +21,9 @@ public final class ProtoCompletionProviderUtil {
             return lookupElement(keyword);
         }
         return LookupElementBuilder.create(keyword)
+                .withTypeText(keyword.substring(0, startIndex), Icons.FOLDER, true)
                 .withPresentableText(keyword.substring(startIndex + 1))
-                .withIcon(Icons.PROTO)
-                .appendTailText("\r\n" + keyword.substring(0, startIndex), true);
+                .withIcon(Icons.PROTO);
     }
 
     public static PsiElement getSuperParent(int level, PsiElement element) {

@@ -19,6 +19,7 @@ public class Icons {
     public static final Icon FIELD = IconLoader.getIcon(BASEDIR + "field.png");
     public static final Icon CONSTANT = IconLoader.getIcon(BASEDIR + "constant.png");
     public static final Icon RPC = IconLoader.getIcon(BASEDIR + "rpc.png");
+    public static final Icon FOLDER = IconLoader.getIcon(BASEDIR + "folder-circleci.png");
 
     private Icons() {
     }
