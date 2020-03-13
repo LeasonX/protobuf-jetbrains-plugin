@@ -24,6 +24,8 @@ import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -37,6 +39,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.protostuff.jetbrains.plugin.reference.file.BundledProtobufRootsProvider;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +54,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.swing.event.HyperlinkEvent;
+
+import io.protostuff.jetbrains.plugin.settings.ProtobufSettings;
+import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,6 +95,21 @@ public class ProtostuffPluginController implements ProjectComponent {
         }
 
         registerFileOpenListener();
+
+        flushVFSCacheAndAddListener();
+    }
+
+    private void flushVFSCacheAndAddListener() {
+        ProtobufSettings settings = ProtobufSettings.getInstance(project);
+        if (null != settings) {
+            List<String> protoFolderPaths = settings.getIncludePaths();
+            if (!protoFolderPaths.isEmpty()) {
+                String protoFolder = protoFolderPaths.get(0);
+                VFSUtil.flushProtoPathVFSCache(project, protoFolder);
+                VFSUtil.addVFSChangeListener(project, protoFolder);
+                ;
+            }
+        }
     }
 
     private void registerFileOpenListener() {
