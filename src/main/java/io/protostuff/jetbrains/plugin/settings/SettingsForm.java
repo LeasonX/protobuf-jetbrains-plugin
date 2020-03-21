@@ -7,8 +7,13 @@ import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 
+import io.protostuff.jetbrains.plugin.util.ProtocUtil;
 import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Plugin settings form.
@@ -54,6 +59,29 @@ public class SettingsForm {
                     VFSUtil.addVFSChangeListener(project, protoFolderPath);
                 }
                 protoFolderTextField.setText(protoFolderPath);
+                //auto complete protoc and java file setting
+                if (ProtocUtil.isWindowsOS) {
+                    //protoc path auto complete
+                    String protocFilePath = protoFolderPath + "/protoc.exe";
+                    File protocFile = new File(protocFilePath);
+                    if (protocFile.exists()) {
+                        protocPath = protocFilePath;
+                        protocPathTextField.setText(protocFilePath);
+                    }
+                }
+                //auto complete java file folder
+                Path resourceFolder = Paths.get(protoFolderPath).getParent();
+                if (null != resourceFolder) {
+                    Path mainFolder = resourceFolder.getParent();
+                    if (null != mainFolder) {
+                        Path javaPath = mainFolder.resolve("java");
+                        String javaPathStr;
+                        if (new File(javaPathStr = javaPath.toString()).exists()) {
+                            javaFileDir = javaPathStr;
+                            javaFileDirTextField.setText(javaPathStr);
+                        }
+                    }
+                }
             });
         });
         protocButton.addActionListener(e -> {

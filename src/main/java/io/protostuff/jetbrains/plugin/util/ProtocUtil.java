@@ -1,8 +1,10 @@
 package io.protostuff.jetbrains.plugin.util;
 
 
-import java.io.*;
-import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.function.Consumer;
 
 public final class ProtocUtil {
@@ -12,7 +14,7 @@ public final class ProtocUtil {
 
     private static final String COMMAND_TEMPLATE = "%s -I=%s --java_out=%s %s";
 
-    private static final boolean isWindowsOS = System.getProperty("os.name").startsWith("Windows");
+    public static final boolean isWindowsOS = System.getProperty("os.name").startsWith("Windows");
 
     private ProtocUtil() {
         throw new UnsupportedOperationException("Utility class can not be instantiated");

@@ -8,28 +8,12 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="27302" class="javax.swing.JButton" binding="protoFolderButton">
-        <constraints>
-          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="PROTO FOLDER"/>
-        </properties>
-      </component>
       <component id="8ab5e" class="javax.swing.JLabel" binding="protoFolderLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Protobuff files setting "/>
-        </properties>
-      </component>
-      <component id="bd90b" class="javax.swing.JButton" binding="protocButton" default-binding="true">
-        <constraints>
-          <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="protoc "/>
         </properties>
       </component>
       <component id="2cd7b" class="javax.swing.JButton" binding="javaFileButton" default-binding="true">
@@ -50,19 +34,14 @@
           <editable value="false"/>
         </properties>
       </component>
-      <component id="f048a" class="javax.swing.JTextField" binding="protoFolderTextField">
+      <vspacer id="13f08">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <text value=""/>
-        </properties>
-      </component>
+      </vspacer>
       <component id="637d6" class="javax.swing.JTextField" binding="protocPathTextField">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
@@ -70,11 +49,33 @@
           <editable value="false"/>
         </properties>
       </component>
-      <vspacer id="13f08">
+      <component id="bd90b" class="javax.swing.JButton" binding="protocButton" default-binding="true">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
-      </vspacer>
+        <properties>
+          <text value="protoc "/>
+        </properties>
+      </component>
+      <component id="27302" class="javax.swing.JButton" binding="protoFolderButton">
+        <constraints>
+          <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="PROTO FOLDER"/>
+        </properties>
+      </component>
+      <component id="f048a" class="javax.swing.JTextField" binding="protoFolderTextField">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <editable value="false"/>
+          <text value=""/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>
