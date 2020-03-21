@@ -57,7 +57,7 @@ intellij {
     updateSinceUntilBuild = false
 //    downloadSources = true
 //    plugins = ['PsiViewer:182.2757.2']
-    localPath = '/Users/leason/Library/Application Support/JetBrains/Toolbox/apps/IDEA-C/ch-0/193.6494.35/IntelliJ IDEA CE.app/'
+    localPath = '/Users/leason/Library/Application Support/JetBrains/Toolbox/apps/IDEA-C/ch-0/193.6911.18/IntelliJ IDEA CE.app/'
 //    instrumentCode = false
     publish {
         username = project.hasProperty('jetbrainsUser')    \
