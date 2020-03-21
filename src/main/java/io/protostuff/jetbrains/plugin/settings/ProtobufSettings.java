@@ -16,21 +16,12 @@ import org.jetbrains.annotations.NotNull;
 @State(name = "ProtobufSettings", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
 public class ProtobufSettings implements PersistentStateComponent<ProtobufSettings> {
 
-    private List<String> includePaths = new ArrayList<>();
+    private String protoFolder;
     private String protocPath;
     private String javaFileDir;
 
     public static ProtobufSettings getInstance(Project project) {
         return ServiceManager.getService(project, ProtobufSettings.class);
-    }
-
-    @NotNull
-    public List<String> getIncludePaths() {
-        return includePaths;
-    }
-
-    public void setIncludePaths(@NotNull List<String> includePaths) {
-        this.includePaths = new ArrayList<>(includePaths);
     }
 
     /**
@@ -39,12 +30,9 @@ public class ProtobufSettings implements PersistentStateComponent<ProtobufSettin
     @NotNull
     public List<VirtualFile> getIncludePathsVf() {
         List<VirtualFile> result = new ArrayList<>();
-        List<String> includePaths = getIncludePaths();
-        for (String includePath : includePaths) {
-            VirtualFile path = LocalFileSystem.getInstance().findFileByPath(includePath);
-            if (path != null && path.isDirectory()) {
-                result.add(path);
-            }
+        VirtualFile path = LocalFileSystem.getInstance().findFileByPath(protoFolder);
+        if (path != null && path.isDirectory()) {
+            result.add(path);
         }
         return result;
     }
@@ -60,7 +48,7 @@ public class ProtobufSettings implements PersistentStateComponent<ProtobufSettin
     }
 
     public void copyFrom(ProtobufSettings settings) {
-        setIncludePaths(settings.getIncludePaths());
+        setProtoFolder(settings.getProtoFolder());
         setProtocPath(settings.getProtocPath());
         setJavaFileDir(settings.getJavaFileDir());
     }
@@ -70,14 +58,14 @@ public class ProtobufSettings implements PersistentStateComponent<ProtobufSettin
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProtobufSettings that = (ProtobufSettings) o;
-        return Objects.equals(includePaths, that.includePaths) &&
+        return Objects.equals(protoFolder, that.protoFolder) &&
                 Objects.equals(protocPath, that.protocPath) &&
                 Objects.equals(javaFileDir, that.javaFileDir);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(includePaths, protocPath, javaFileDir);
+        return Objects.hash(protoFolder, protocPath, javaFileDir);
     }
 
     public String getProtocPath() {
@@ -94,5 +82,13 @@ public class ProtobufSettings implements PersistentStateComponent<ProtobufSettin
 
     public void setJavaFileDir(String javaFileDir) {
         this.javaFileDir = javaFileDir;
+    }
+
+    public void setProtoFolder(String protoFolder) {
+        this.protoFolder = protoFolder;
+    }
+
+    public String getProtoFolder() {
+        return protoFolder;
     }
 }

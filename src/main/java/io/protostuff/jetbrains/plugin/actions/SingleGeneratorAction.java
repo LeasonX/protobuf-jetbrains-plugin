@@ -15,7 +15,6 @@ import io.protostuff.jetbrains.plugin.util.ProtocUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 public class SingleGeneratorAction extends AnAction {
@@ -27,8 +26,8 @@ public class SingleGeneratorAction extends AnAction {
         VirtualFile virtualFile = anActionEvent.getData(PlatformDataKeys.VIRTUAL_FILE);
         if (null != virtualFile) {
             ProtobufSettings instance = ProtobufSettings.getInstance(currentProject);
+            String protoFolder = instance.getProtoFolder();
             String protocPath = instance.getProtocPath();
-            List<String> includePaths = instance.getIncludePaths();
             String javaFileDir = instance.getJavaFileDir();
             if (null == protocPath) {
                 Messages.showErrorDialog(currentProject, "No protoc path, please go to settings.",
@@ -40,12 +39,11 @@ public class SingleGeneratorAction extends AnAction {
                         "ERROR");
                 return;
             }
-            if (includePaths.isEmpty()) {
-                Messages.showErrorDialog(currentProject, "No protofile directory, please go to settings.",
+            if (null == protoFolder) {
+                Messages.showErrorDialog(currentProject, "No protobuff file directory, please go to settings.",
                         "ERROR");
                 return;
             }
-            String protoFileDir = includePaths.get(0);
             int resultCode = 0;
             StringBuilder errorMessageBuilder = new StringBuilder();
             assert currentProject != null;
@@ -54,22 +52,18 @@ public class SingleGeneratorAction extends AnAction {
                     PsiDocumentManager.getInstance(currentProject).getDocument(Objects.requireNonNull(
                             PsiManager.getInstance(currentProject).findFile(virtualFile)))));
             try {
-                resultCode = ProtocUtil.generate(protocPath, protoFileDir, javaFileDir,
+                resultCode = ProtocUtil.generate(protocPath, protoFolder, javaFileDir,
                         virtualFile.getCanonicalPath(),
-                        errorLine -> {
-                            errorMessageBuilder
-                                    .append(errorLine)
-                                    .append(System.getProperty("line.separator"));
-                        });
+                        errorLine -> errorMessageBuilder
+                                .append(errorLine)
+                                .append(System.getProperty("line.separator")));
             } catch (InterruptedException | IOException e) {
                 Messages.showErrorDialog(currentProject, e.getMessage(),
                         "ERROR");
             }
             if (0 == resultCode) {
                 //更新vfs索引
-                VirtualFileManager.getInstance().asyncRefresh(() -> {
-                    Messages.showInfoMessage(currentProject, "OK 😁", dlgTitle);
-                });
+                VirtualFileManager.getInstance().asyncRefresh(() -> Messages.showInfoMessage(currentProject, "OK", dlgTitle));
             } else {
                 Messages.showErrorDialog(currentProject, errorMessageBuilder.toString(),
                         "ERROR");

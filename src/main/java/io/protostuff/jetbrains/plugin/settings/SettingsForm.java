@@ -1,15 +1,10 @@
 package io.protostuff.jetbrains.plugin.settings;
 
-import com.google.common.collect.Lists;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.CollectionListModel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.swing.*;
 
 import io.protostuff.jetbrains.plugin.util.VFSUtil;
@@ -20,59 +15,46 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Kostiantyn Shchepanovskyi
  */
-@SuppressWarnings("WeakerAccess")
 public class SettingsForm {
 
-    private final CollectionListModel<String> includePathModel;
-    private final List<String> includePathListList;
+    private String protoFolderPath;
     private String protocPath;
     private String javaFileDir;
     private final Project project;
     private JPanel panel;
-    private com.intellij.ui.components.JBList includePathList;
-    private JButton addButton;
-    private JButton removeButton;
-    private JLabel includePathsLabel;
     private JTextField protocPathTextField;
     private JTextField javaFileDirTextField;
+    private JTextField protoFolderTextField;
+    private JButton protoFolderButton;
     private JButton protocButton;
     private JButton javaFileButton;
+    private JLabel protoFolderLabel;
 
     /**
      * Create new {@link SettingsForm} instance.
      *
      * @param settings is null if settings dialog runs without a project.
      */
-    @SuppressWarnings("unchecked")
     public SettingsForm(@Nullable Project project, @Nullable ProtobufSettings settings) {
         this.project = project;
-        List<String> internalIncludePathList = new ArrayList<>();
         if (settings != null) {
-            internalIncludePathList.addAll(settings.getIncludePaths());
+            protoFolderPath = settings.getProtoFolder();
             protocPath = settings.getProtocPath();
             javaFileDir = settings.getJavaFileDir();
         }
-        includePathListList = Collections.unmodifiableList(internalIncludePathList);
-        includePathModel = new CollectionListModel<>(internalIncludePathList, true);
-        includePathList.setModel(includePathModel);
+        protoFolderTextField.setText(protoFolderPath);
         protocPathTextField.setText(protocPath);
         javaFileDirTextField.setText(javaFileDir);
-        addButton.addActionListener(e -> {
+        protoFolderButton.addActionListener(e -> {
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
             FileChooser.chooseFile(descriptor, this.project, null, selectedFolder -> {
-                String path = selectedFolder.getPath();
+                protoFolderPath = selectedFolder.getPath();
                 if (null != project) {
-                    VFSUtil.flushProtoPathVFSCache(project,path);
-                    VFSUtil.addVFSChangeListener(project, path);
+                    VFSUtil.flushProtoPathVFSCache(project, protoFolderPath);
+                    VFSUtil.addVFSChangeListener(project, protoFolderPath);
                 }
-                includePathModel.add(path);
+                protoFolderTextField.setText(protoFolderPath);
             });
-        });
-        removeButton.addActionListener(e -> {
-            int selectedIndex = includePathList.getSelectedIndex();
-            if (selectedIndex != -1) {
-                includePathModel.removeRow(selectedIndex);
-            }
         });
         protocButton.addActionListener(e -> {
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
@@ -90,29 +72,12 @@ public class SettingsForm {
         });
 
         if (settings == null) {
-            addButton.setEnabled(false);
-            removeButton.setEnabled(false);
+            protoFolderButton.setEnabled(false);
             protocButton.setEnabled(false);
             javaFileButton.setEnabled(false);
         }
 
     }
-
-    /**
-     * ProtobufSettings settings = ProtobufSettings.getInstance(project);
-     * List<String> includePaths = settings.getIncludePaths();
-     * if (!includePaths.isEmpty()) {
-     * String protoFolderPath = includePaths.get(0);
-     * FileUtil.flushProtoPathVFSCache(protoFolderPath);
-     * project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
-     *
-     * @return
-     * @Override public void after(@NotNull List<? extends VFileEvent> events) {
-     * FileUtil.flushProtoPathVFSCache(protoFolderPath);
-     * }
-     * });
-     * }
-     */
 
     public JPanel getPanel() {
         return panel;
@@ -123,15 +88,14 @@ public class SettingsForm {
      */
     public ProtobufSettings getSettings() {
         ProtobufSettings settings = new ProtobufSettings();
-        settings.setIncludePaths(Lists.newArrayList(includePathListList));
+        settings.setProtoFolder(protoFolderPath);
         settings.setProtocPath(protocPath);
         settings.setJavaFileDir(javaFileDir);
         return settings;
     }
 
     public void reset(ProtobufSettings source) {
-        includePathModel.removeAll();
-        includePathModel.add(source.getIncludePaths());
+        protoFolderPath = source.getProtoFolder();
         protocPath = source.getProtocPath();
         javaFileDir = source.getJavaFileDir();
     }

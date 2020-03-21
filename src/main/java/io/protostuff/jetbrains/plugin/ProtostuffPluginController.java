@@ -24,8 +24,6 @@ import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -102,13 +100,9 @@ public class ProtostuffPluginController implements ProjectComponent {
     private void flushVFSCacheAndAddListener() {
         ProtobufSettings settings = ProtobufSettings.getInstance(project);
         if (null != settings) {
-            List<String> protoFolderPaths = settings.getIncludePaths();
-            if (!protoFolderPaths.isEmpty()) {
-                String protoFolder = protoFolderPaths.get(0);
-                VFSUtil.flushProtoPathVFSCache(project, protoFolder);
-                VFSUtil.addVFSChangeListener(project, protoFolder);
-                ;
-            }
+            String protoFolder = settings.getProtoFolder();
+            VFSUtil.flushProtoPathVFSCache(project, protoFolder);
+            VFSUtil.addVFSChangeListener(project, protoFolder);
         }
     }
 
@@ -237,10 +231,10 @@ public class ProtostuffPluginController implements ProjectComponent {
     }
 
     private String formatHtmlPluginList(Collection<IdeaPluginDescriptor> conflictingPlugins) {
-        return String.join("\n", conflictingPlugins.stream()
+        return conflictingPlugins.stream()
                 .map(IdeaPluginDescriptor::getName)
                 .map(name -> "<li>" + name + "</li>")
-                .collect(Collectors.toList()));
+                .collect(Collectors.joining("\n"));
     }
 
     @Override
