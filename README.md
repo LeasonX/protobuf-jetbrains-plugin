@@ -9,9 +9,9 @@
 
 ### STEP
 
-> 1. Enter setting page, click `ADD` and select proto files folder location. (one folder is enough usually)
-> 2. Click `PROTOC` and select protoc (or protoc.exe on windows) file location.
-> 3. Click `JAVA FILE` and select the folder for java file generating.
+> 1. Enter setting page, click `PROTO FOLDER` and select proto files folder location.
+> 2. Click `JAVA FILE` and select the folder for java file generating.
+> 3. Click `PROTOC` and select protoc (or protoc.exe on windows) file location.
 
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/proto%20setting.png)
 
