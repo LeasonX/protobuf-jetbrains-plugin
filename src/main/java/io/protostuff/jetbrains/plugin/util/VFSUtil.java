@@ -29,6 +29,9 @@ public final class VFSUtil {
     }
 
     public static void flushProtoPathVFSCache(Project project, String folderPath) {
+        if (null == folderPath) {
+            return;
+        }
         List<String> projectCacheFileRelativePaths = new LinkedList<>();
         Path path = Paths.get(folderPath);
         VirtualFile folderVirtualFile = VfsUtil.findFile(path, true);
