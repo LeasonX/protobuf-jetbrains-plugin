@@ -1,6 +1,6 @@
 ## Protobuf Support for JetBrains IDEs
 
-> English Version: 
+> English Version: https://github.com/LeasonX/protobuf-jetbrains-plugin/blob/dev/proto2/README_EN.md
 
 > FORK FROM https://github.com/protostuff/protobuf-jetbrains-plugin
 
