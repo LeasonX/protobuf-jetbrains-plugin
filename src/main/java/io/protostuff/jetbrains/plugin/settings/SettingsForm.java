@@ -76,7 +76,7 @@ public class SettingsForm {
                     if (null != mainFolder) {
                         Path javaPath = mainFolder.resolve("java");
                         String javaPathStr;
-                        if (new File(javaPathStr = javaPath.toString()).exists()) {
+                        if (new File(javaPathStr = VFSUtil.replaceFileSeparator(javaPath.toString())).exists()) {
                             javaFileDir = javaPathStr;
                             javaFileDirTextField.setText(javaPathStr);
                         }

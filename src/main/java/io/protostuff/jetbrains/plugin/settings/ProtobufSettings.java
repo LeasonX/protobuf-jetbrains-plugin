@@ -30,9 +30,11 @@ public class ProtobufSettings implements PersistentStateComponent<ProtobufSettin
     @NotNull
     public List<VirtualFile> getIncludePathsVf() {
         List<VirtualFile> result = new ArrayList<>();
-        VirtualFile path = LocalFileSystem.getInstance().findFileByPath(protoFolder);
-        if (path != null && path.isDirectory()) {
-            result.add(path);
+        if(null != protoFolder){
+            VirtualFile path = LocalFileSystem.getInstance().findFileByPath(protoFolder);
+            if (path != null && path.isDirectory()) {
+                result.add(path);
+            }
         }
         return result;
     }

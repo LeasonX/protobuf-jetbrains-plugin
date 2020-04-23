@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import io.protostuff.jetbrains.plugin.ProtoFileType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
@@ -38,7 +39,8 @@ public final class VFSUtil {
         if (null != folderVirtualFile) {
             VfsUtil.processFileRecursivelyWithoutIgnored(folderVirtualFile, virtualFile -> {
                 if (ProtoFileType.FILE_EXTENSION.equals(virtualFile.getExtension())) {
-                    projectCacheFileRelativePaths.add(path.relativize(Paths.get(virtualFile.getPath())).toString());
+                    projectCacheFileRelativePaths.add(replaceFileSeparator(path.relativize(
+                            Paths.get(virtualFile.getPath())).toString()));
                 }
                 return true;
             });
@@ -53,6 +55,10 @@ public final class VFSUtil {
                 flushProtoPathVFSCache(project, protoFolderPath);
             }
         });
+    }
+
+    public static String replaceFileSeparator(String filePath) {
+        return filePath.replaceAll("\\\\", "/");
     }
 
 }
