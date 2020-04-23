@@ -63,7 +63,8 @@ public class SingleGeneratorAction extends AnAction {
             }
             if (0 == resultCode) {
                 //更新vfs索引
-                VirtualFileManager.getInstance().asyncRefresh(() -> Messages.showInfoMessage(currentProject, "OK", dlgTitle));
+                VirtualFileManager.getInstance().syncRefresh();
+                Messages.showInfoMessage(currentProject, "OK", dlgTitle);
             } else {
                 Messages.showErrorDialog(currentProject, errorMessageBuilder.toString(),
                         "ERROR");
