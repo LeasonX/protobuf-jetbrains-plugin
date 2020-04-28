@@ -11,36 +11,15 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.CompositeElement;
 import io.protostuff.compiler.model.Field;
 import io.protostuff.compiler.model.ProtobufConstants;
-import io.protostuff.jetbrains.plugin.psi.AntlrParserRuleNode;
-import io.protostuff.jetbrains.plugin.psi.EnumConstantNode;
-import io.protostuff.jetbrains.plugin.psi.EnumNode;
-import io.protostuff.jetbrains.plugin.psi.ExtendNode;
-import io.protostuff.jetbrains.plugin.psi.FieldLabel;
-import io.protostuff.jetbrains.plugin.psi.FieldNode;
-import io.protostuff.jetbrains.plugin.psi.FieldReferenceNode;
-import io.protostuff.jetbrains.plugin.psi.FileReferenceNode;
-import io.protostuff.jetbrains.plugin.psi.GroupNode;
-import io.protostuff.jetbrains.plugin.psi.MessageField;
-import io.protostuff.jetbrains.plugin.psi.MessageNode;
-import io.protostuff.jetbrains.plugin.psi.OneOfNode;
-import io.protostuff.jetbrains.plugin.psi.OptionNode;
-import io.protostuff.jetbrains.plugin.psi.ProtoPsiFileRoot;
-import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
-import io.protostuff.jetbrains.plugin.psi.RangeNode;
-import io.protostuff.jetbrains.plugin.psi.RpcMethodNode;
-import io.protostuff.jetbrains.plugin.psi.ServiceNode;
-import io.protostuff.jetbrains.plugin.psi.Syntax;
-import io.protostuff.jetbrains.plugin.psi.TypeReferenceNode;
+import io.protostuff.jetbrains.plugin.psi.*;
 import io.protostuff.jetbrains.plugin.reference.FieldReferenceProviderImpl;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
+
+import io.protostuff.jetbrains.plugin.util.ProtoCompletionProviderUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,6 +76,7 @@ public class ProtoErrorsAnnotator implements Annotator {
                 if (element instanceof FieldNode) {
                     FieldNode field = (FieldNode) element;
                     checkFieldLabel(field, syntax);
+
                 }
                 if (element instanceof OptionNode) {
                     checkDefaultValue((OptionNode) element, syntax);
@@ -106,7 +86,7 @@ public class ProtoErrorsAnnotator implements Annotator {
                     List<EnumConstantNode> constants = anEnum.getConstants();
                     checkDuplicateEnumConstantNames(constants);
                     checkDuplicateEnumConstantValues(anEnum, constants);
-                    checkFirstEnumConstantValueIsZero(anEnum, constants, syntax);
+                    checkFirstEnumConstantValueIsZero(constants, syntax);
                     checkReservedEnumTags(anEnum, constants);
                     checkReservedEnumNames(anEnum, constants);
                 }
@@ -118,6 +98,9 @@ public class ProtoErrorsAnnotator implements Annotator {
                 if (element instanceof TypeReferenceNode
                         || element instanceof FieldReferenceNode) {
                     checkReference(element);
+                }
+                if (element instanceof TypeReferenceNode) {
+                    checkFieldImport((TypeReferenceNode) element, root);
                 }
                 if (element instanceof FileReferenceNode) {
                     FileReferenceNode fileReferenceNode = (FileReferenceNode) element;
@@ -169,7 +152,7 @@ public class ProtoErrorsAnnotator implements Annotator {
         }
     }
 
-    private void checkFirstEnumConstantValueIsZero(EnumNode anEnum, List<EnumConstantNode> constants, Syntax syntax) {
+    private void checkFirstEnumConstantValueIsZero(List<EnumConstantNode> constants, Syntax syntax) {
         if (syntax != Syntax.PROTO3) {
             return;
         }
@@ -435,6 +418,23 @@ public class ProtoErrorsAnnotator implements Annotator {
                 String message = message("error.duplicate.name", name);
                 markError(fieldByName.get(name).getNode(), fieldByName.get(name).getFieldNameNode(), message);
                 markError(oneOfNode.getNode(), oneOfNode.getOneofNameNode(), message);
+            }
+        }
+    }
+
+    private void checkFieldImport(TypeReferenceNode typeReferenceNode, ProtoRootNode rootNode) {
+        PsiElement firstChild = typeReferenceNode.getFirstChild();
+        if (null != firstChild
+                && null != firstChild.getNode()
+                && firstChild.getNode() instanceof CompositeElement) {
+            //add current file
+            Set<String> messageAndEnumNames = new TreeSet<>(ProtoCompletionProviderUtil.getMessageAndEnumNames(rootNode));
+            // add import
+            Set<String> availableImportMessageAndEnumNames = ProtoCompletionProviderUtil.getAvailableImportMessageAndEnumNames(rootNode);
+            messageAndEnumNames.addAll(availableImportMessageAndEnumNames);
+            if (!messageAndEnumNames.contains(typeReferenceNode.getText().trim())) {
+                String message = message("error.unresolved.reference");
+                markError(typeReferenceNode.getNode(), typeReferenceNode.getNode(), message);
             }
         }
     }

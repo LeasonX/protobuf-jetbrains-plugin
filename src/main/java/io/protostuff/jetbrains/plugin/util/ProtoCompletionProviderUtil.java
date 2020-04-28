@@ -5,6 +5,15 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import io.protostuff.jetbrains.plugin.Icons;
+import io.protostuff.jetbrains.plugin.psi.EnumNode;
+import io.protostuff.jetbrains.plugin.psi.ImportNode;
+import io.protostuff.jetbrains.plugin.psi.MessageNode;
+import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class ProtoCompletionProviderUtil {
     public static LookupElement lookupElementWithSpace(String keyword) {
@@ -36,5 +45,34 @@ public final class ProtoCompletionProviderUtil {
             element = parent;
         }
         return parent;
+    }
+
+    public static Set<String> getMessageAndEnumNames(ProtoRootNode rootNode) {
+        Set<String> result = new TreeSet<>();
+        if (null == rootNode) {
+            return Collections.emptySet();
+        }
+        PsiElement[] children = rootNode.getChildren();
+        if (0 == children.length) {
+            return Collections.emptySet();
+        }
+        for (PsiElement child : children) {
+            if (child instanceof MessageNode) {
+                result.add(((MessageNode) child).getName());
+            } else if (child instanceof EnumNode) {
+                result.add(((EnumNode) child).getName());
+            }
+        }
+        return result;
+    }
+
+    public static Set<String> getAvailableImportMessageAndEnumNames(ProtoRootNode protoRootNode) {
+        Set<String> result = new TreeSet<>();
+        List<ImportNode> imports = protoRootNode.getImports();
+        for (ImportNode anImport : imports) {
+            ProtoRootNode targetProto = anImport.getTargetProto();
+            result.addAll(ProtoCompletionProviderUtil.getMessageAndEnumNames(targetProto));
+        }
+        return result;
     }
 }

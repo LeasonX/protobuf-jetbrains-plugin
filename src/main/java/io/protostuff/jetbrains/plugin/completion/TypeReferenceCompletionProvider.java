@@ -37,13 +37,10 @@ public class TypeReferenceCompletionProvider extends CompletionProvider<Completi
 
         ProtoRootNode protoRoot = ((ProtoPsiFileRoot) completionParameters.getPosition().getContainingFile()).getProtoRoot();
         //add current file
-        Set<String> messageAndEnumNames = new TreeSet<>(getMessageAndEnumNames(protoRoot));
+        Set<String> messageAndEnumNames = new TreeSet<>(ProtoCompletionProviderUtil.getMessageAndEnumNames(protoRoot));
         // add import
-        List<ImportNode> imports = protoRoot.getImports();
-        for (ImportNode anImport : imports) {
-            ProtoRootNode targetProto = anImport.getTargetProto();
-            messageAndEnumNames.addAll(getMessageAndEnumNames(targetProto));
-        }
+        Set<String> availableImportMessageAndEnumNames = ProtoCompletionProviderUtil.getAvailableImportMessageAndEnumNames(protoRoot);
+        messageAndEnumNames.addAll(availableImportMessageAndEnumNames);
         completionResultSet.addAllElements(messageAndEnumNames
                 .stream()
                 .map(ProtoCompletionProviderUtil::lookupElementWithSpace)
@@ -52,22 +49,5 @@ public class TypeReferenceCompletionProvider extends CompletionProvider<Completi
         completionResultSet.addAllElements(TYPE_REFERENCE);
     }
 
-    private Set<String> getMessageAndEnumNames(ProtoRootNode rootNode) {
-        Set<String> result = new TreeSet<>();
-        if (null == rootNode) {
-            return Collections.emptySet();
-        }
-        PsiElement[] children = rootNode.getChildren();
-        if (0 == children.length) {
-            return Collections.emptySet();
-        }
-        for (PsiElement child : children) {
-            if (child instanceof MessageNode) {
-                result.add(((MessageNode) child).getName());
-            } else if (child instanceof EnumNode) {
-                result.add(((EnumNode) child).getName());
-            }
-        }
-        return result;
-    }
+
 }
