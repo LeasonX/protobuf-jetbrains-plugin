@@ -56,24 +56,6 @@ public class ProtoCodeCompletionContributor extends CompletionContributor {
         );
     }
 
-//    void handleInMessageNode() {
-//        extend(CompletionType.BASIC,
-//                PlatformPatterns.psiElement()
-//                        .inside(PlatformPatterns.psiElement(MessageNode.class))
-////                        .withSuperParent(3, MessageNode.class)
-//                        .andNot(PlatformPatterns.psiElement().afterLeaf("."))
-////                        .withSuperParent(2, MessageNode.class)
-//                        .withLanguage(ProtoLanguage.INSTANCE),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        fieldModifierComplete(resultSet);
-//                    }
-//                }
-//        );
-//    }
-
     private void handleAfterLeaf(IElementType elementType, boolean isFirstLine) {
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement()

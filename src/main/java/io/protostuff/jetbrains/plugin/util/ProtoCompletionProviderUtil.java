@@ -1,14 +1,20 @@
 package io.protostuff.jetbrains.plugin.util;
 
 import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
+import com.intellij.codeInsight.completion.InsertHandler;
+import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.psi.PsiElement;
 import io.protostuff.jetbrains.plugin.Icons;
 import io.protostuff.jetbrains.plugin.psi.EnumNode;
 import io.protostuff.jetbrains.plugin.psi.ImportNode;
 import io.protostuff.jetbrains.plugin.psi.MessageNode;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,10 +35,20 @@ public final class ProtoCompletionProviderUtil {
         if (-1 == startIndex) {
             return lookupElement(keyword);
         }
-        return LookupElementBuilder.create(keyword)
+        String fileName = keyword.substring(startIndex + 1);
+        return LookupElementBuilder.create(fileName)
                 .withTypeText(keyword.substring(0, startIndex), Icons.FOLDER, true)
-                .withPresentableText(keyword.substring(startIndex + 1))
-                .withIcon(Icons.PROTO);
+                .withPresentableText(fileName)
+                .withIcon(Icons.PROTO)
+                .withInsertHandler(
+                        (insertionContext, lookupElement) -> {
+                            Editor editor = insertionContext.getEditor();
+                            CaretModel caretModel = editor.getCaretModel();
+                            int offset = caretModel.getOffset();
+                            editor.getDocument().replaceString(offset - fileName.length(), offset + 1, keyword + "\";");
+                            int visualLineEnd = caretModel.getVisualLineEnd();
+                            caretModel.moveToOffset(visualLineEnd);
+                        });
     }
 
     public static PsiElement getSuperParent(int level, PsiElement element) {
