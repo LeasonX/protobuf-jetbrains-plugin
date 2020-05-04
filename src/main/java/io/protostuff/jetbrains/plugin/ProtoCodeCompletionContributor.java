@@ -1,17 +1,12 @@
 package io.protostuff.jetbrains.plugin;
 
-import com.intellij.codeInsight.completion.CompletionContributor;
-import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.codeInsight.completion.*;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.tree.IElementType;
 import io.protostuff.compiler.parser.ProtoLexer;
 import io.protostuff.compiler.parser.ProtoParser;
-import io.protostuff.jetbrains.plugin.completion.TypeReferenceCompletionProvider;
-import io.protostuff.jetbrains.plugin.completion.FieldModifierCompletionProvider;
-import io.protostuff.jetbrains.plugin.completion.FileReferenceCompletionProvider;
-import io.protostuff.jetbrains.plugin.completion.SyntaxNameCompletionProvider;
-import io.protostuff.jetbrains.plugin.completion.TopLevelStartKeyWordsCompletionProvider;
+import io.protostuff.jetbrains.plugin.completion.*;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
 
 public class ProtoCodeCompletionContributor extends CompletionContributor {
@@ -22,6 +17,7 @@ public class ProtoCodeCompletionContributor extends CompletionContributor {
         handleAtFileReference();
         handleInCurly();
         handleAfterSemicolon();
+        handleFieldName();
 
         handleAfterFieldModifier(ProtoLexer.OPTIONAL);
         handleAfterFieldModifier(ProtoLexer.REQUIRED);
@@ -63,6 +59,15 @@ public class ProtoCodeCompletionContributor extends CompletionContributor {
                         .andNot(PlatformPatterns.psiElement().withSuperParent(2, ProtoRootNode.class))
                         .withLanguage(ProtoLanguage.INSTANCE),
                 new FieldModifierCompletionProvider(isFirstLine)
+        );
+    }
+
+    private void handleFieldName() {
+        //only support enum type or message type
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement()
+                        .withLanguage(ProtoLanguage.INSTANCE),
+                new FieldNameCompletionProvider()
         );
     }
 

@@ -25,14 +25,14 @@ public class TopLevelStartKeyWordsCompletionProvider extends CompletionProvider<
     @Override
     protected void addCompletions(
             @NotNull CompletionParameters completionParameters,
-            ProcessingContext processingContext,
+            @NotNull ProcessingContext processingContext,
             @NotNull CompletionResultSet result) {
         result.addAllElements(TOP_LEVEL_START_KEY_WORDS);
         //import
         result.addElement(LookupElementBuilder.create("import").withInsertHandler(new AddSpaceAndDoubleQuoteInsertHandler(false)));
     }
 
-    class AddSpaceAndDoubleQuoteInsertHandler extends AddSpaceInsertHandler{
+    static class AddSpaceAndDoubleQuoteInsertHandler extends AddSpaceInsertHandler{
 
         public AddSpaceAndDoubleQuoteInsertHandler(boolean triggerAutoPopup) {
             super(triggerAutoPopup);

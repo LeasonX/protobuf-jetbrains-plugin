@@ -1,20 +1,16 @@
 package io.protostuff.jetbrains.plugin.util;
 
 import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
-import com.intellij.codeInsight.completion.InsertHandler;
-import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.psi.PsiElement;
 import io.protostuff.jetbrains.plugin.Icons;
 import io.protostuff.jetbrains.plugin.psi.EnumNode;
 import io.protostuff.jetbrains.plugin.psi.ImportNode;
 import io.protostuff.jetbrains.plugin.psi.MessageNode;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
