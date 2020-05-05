@@ -7,7 +7,7 @@
 ---
 
 ### 使用
-从 [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4421760/protobuf-jetbrains-plugin-0.13.0.zip) 下载完拖入idea就vans了(老版本百度怎么idea装本地插件)
+从 [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4421760/protobuf-jetbrains-plugin-0.13.0.zip) 下载完拖入idea就完事了(老版本百度怎么idea装本地插件)
 
 ### 增强功能(proto2)
 
@@ -39,7 +39,5 @@
 > 基本的代码补全
 >
 >message需要提示来自其他proto文件的enum或message时, 需要先写全import;
->
->import后先补全双引号, 再写文件名会自动提示proto文件, 否则不会
 
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/code%20completion.png)
