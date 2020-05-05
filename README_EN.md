@@ -4,7 +4,7 @@
 
 ### HOW TO USE
 
-download [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4421760/protobuf-jetbrains-plugin-0.13.0.zip) and drag to your IDEA(old idea version: google how to install plugin form disk in idea)
+download [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4581290/protobuf-jetbrains-plugin-0.13.0.zip) and drag to your IDEA(old idea version: google how to install plugin form disk in idea)
 
 ### ENHANCEMENT
 
