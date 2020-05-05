@@ -14,7 +14,7 @@ public abstract class AbstractProtobufLibraryDependentTestCase extends LightPlat
     protected void setUp() throws Exception {
         super.setUp();
         ProtostuffPluginController controller = myFixture.getProject().getComponent(ProtostuffPluginController.class);
-        controller.addLibrary(myModule);
+//        controller.addLibrary(myModule);
     }
 
     /**

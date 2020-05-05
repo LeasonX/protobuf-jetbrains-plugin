@@ -12,11 +12,13 @@ import com.intellij.util.indexing.FileBasedIndex;
 import io.protostuff.jetbrains.plugin.psi.ProtoPsiFileRoot;
 import io.protostuff.jetbrains.plugin.psi.ProtoType;
 import io.protostuff.jetbrains.plugin.settings.ProtobufSettings;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +84,7 @@ public class GoToClassContributor implements GotoClassContributor {
         List<VirtualFile> files = new ArrayList<>();
         addProjectAndLibraryFiles(project, includeNonProjectItems, files);
         if (includeNonProjectItems) {
-            addFilesFromCustomIncludePath(files);
+            addFilesFromCustomIncludePath(project, files);
             addBundledGoogleProtos(project, files);
         }
         for (VirtualFile virtualFile : files) {
@@ -122,8 +124,8 @@ public class GoToClassContributor implements GotoClassContributor {
         files.addAll(FileTypeIndex.getFiles(ProtoFileType.INSTANCE, scope));
     }
 
-    private void addFilesFromCustomIncludePath(List<VirtualFile> files) {
-        ProtobufSettings settings = ProtobufSettings.getInstance();
+    private void addFilesFromCustomIncludePath(Project project, List<VirtualFile> files) {
+        ProtobufSettings settings = ProtobufSettings.getInstance(project);
         List<VirtualFile> includePaths = settings.getIncludePathsVf();
         for (VirtualFile includePath : includePaths) {
             FileBasedIndex.iterateRecursively(includePath, file -> {

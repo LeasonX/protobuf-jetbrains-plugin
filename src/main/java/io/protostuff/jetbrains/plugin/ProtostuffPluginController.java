@@ -37,6 +37,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import io.protostuff.jetbrains.plugin.reference.file.BundledProtobufRootsProvider;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +52,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.swing.event.HyperlinkEvent;
+
+import io.protostuff.jetbrains.plugin.settings.ProtobufSettings;
+import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,6 +93,17 @@ public class ProtostuffPluginController implements ProjectComponent {
         }
 
         registerFileOpenListener();
+
+        flushVFSCacheAndAddListener();
+    }
+
+    private void flushVFSCacheAndAddListener() {
+        ProtobufSettings settings = ProtobufSettings.getInstance(project);
+        if (null != settings) {
+            String protoFolder = settings.getProtoFolder();
+            VFSUtil.flushProtoPathVFSCache(project, protoFolder);
+            VFSUtil.addVFSChangeListener(project, protoFolder);
+        }
     }
 
     private void registerFileOpenListener() {
@@ -216,10 +231,10 @@ public class ProtostuffPluginController implements ProjectComponent {
     }
 
     private String formatHtmlPluginList(Collection<IdeaPluginDescriptor> conflictingPlugins) {
-        return String.join("\n", conflictingPlugins.stream()
+        return conflictingPlugins.stream()
                 .map(IdeaPluginDescriptor::getName)
                 .map(name -> "<li>" + name + "</li>")
-                .collect(Collectors.toList()));
+                .collect(Collectors.joining("\n"));
     }
 
     @Override
