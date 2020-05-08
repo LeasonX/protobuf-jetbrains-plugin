@@ -1,5 +1,6 @@
 package io.protostuff.jetbrains.plugin.reference.file;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,9 +21,11 @@ class CustomIncludePathRootsProvider implements FilePathReferenceProvider.Source
         List<VirtualFile> result = new ArrayList<>();
         ProtobufSettings settings = ProtobufSettings.getInstance(module.getProject());
         String protoFolder = settings.getProtoFolder();
-        VirtualFile path = LocalFileSystem.getInstance().findFileByPath(protoFolder);
-        if (path != null && path.isDirectory()) {
-            result.add(path);
+        if (!Strings.isNullOrEmpty(protoFolder)) {
+            VirtualFile path = LocalFileSystem.getInstance().findFileByPath(protoFolder);
+            if (path != null && path.isDirectory()) {
+                result.add(path);
+            }
         }
         return result.toArray(new VirtualFile[0]);
     }
