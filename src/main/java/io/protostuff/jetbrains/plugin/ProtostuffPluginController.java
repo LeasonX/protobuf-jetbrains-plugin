@@ -102,6 +102,7 @@ public class ProtostuffPluginController implements ProjectComponent {
         if (null != settings) {
             String protoFolder = settings.getProtoFolder();
             VFSUtil.flushProtoPathVFSCache(project, protoFolder);
+            VFSUtil.flushAllImportableMessageOrEnumCache(project, protoFolder);
             VFSUtil.addVFSChangeListener(project, protoFolder);
         }
     }

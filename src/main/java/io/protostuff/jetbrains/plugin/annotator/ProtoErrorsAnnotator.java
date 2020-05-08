@@ -20,6 +20,7 @@ import io.protostuff.jetbrains.plugin.reference.FieldReferenceProviderImpl;
 import java.util.*;
 
 import io.protostuff.jetbrains.plugin.util.ProtoCompletionProviderUtil;
+import io.protostuff.jetbrains.plugin.util.PsiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -428,9 +429,9 @@ public class ProtoErrorsAnnotator implements Annotator {
                 && null != firstChild.getNode()
                 && firstChild.getNode() instanceof CompositeElement) {
             //add current file
-            Set<String> messageAndEnumNames = new TreeSet<>(ProtoCompletionProviderUtil.getMessageAndEnumNames(rootNode));
+            Set<String> messageAndEnumNames = new TreeSet<>(PsiUtil.getMessageAndEnumNames(rootNode));
             // add import
-            Set<String> availableImportMessageAndEnumNames = ProtoCompletionProviderUtil.getAvailableImportMessageAndEnumNames(rootNode);
+            Set<String> availableImportMessageAndEnumNames = PsiUtil.getAvailableImportMessageAndEnumNames(rootNode);
             messageAndEnumNames.addAll(availableImportMessageAndEnumNames);
             if (!messageAndEnumNames.contains(typeReferenceNode.getText().trim())) {
                 String message = message("error.unresolved.reference");

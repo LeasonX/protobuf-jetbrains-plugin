@@ -56,6 +56,7 @@ public class SettingsForm {
                 protoFolderPath = selectedFolder.getPath();
                 if (null != project) {
                     VFSUtil.flushProtoPathVFSCache(project, protoFolderPath);
+                    VFSUtil.flushAllImportableMessageOrEnumCache(project, protoFolderPath);
                     VFSUtil.addVFSChangeListener(project, protoFolderPath);
                 }
                 protoFolderTextField.setText(protoFolderPath);
