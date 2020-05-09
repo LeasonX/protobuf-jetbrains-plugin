@@ -4,6 +4,7 @@ import static io.protostuff.jetbrains.plugin.ProtostuffBundle.message;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
+import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.Annotation;
@@ -14,13 +15,14 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import io.protostuff.compiler.model.Field;
 import io.protostuff.compiler.model.ProtobufConstants;
+import io.protostuff.jetbrains.plugin.actions.TypeReferenceImportQuickFix;
 import io.protostuff.jetbrains.plugin.psi.*;
 import io.protostuff.jetbrains.plugin.reference.FieldReferenceProviderImpl;
 
 import java.util.*;
 
-import io.protostuff.jetbrains.plugin.util.ProtoCompletionProviderUtil;
 import io.protostuff.jetbrains.plugin.util.PsiUtil;
+import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,10 +100,7 @@ public class ProtoErrorsAnnotator implements Annotator {
                 }
                 if (element instanceof TypeReferenceNode
                         || element instanceof FieldReferenceNode) {
-                    checkReference(element);
-                }
-                if (element instanceof TypeReferenceNode) {
-                    checkFieldImport((TypeReferenceNode) element, root);
+                    checkReference(element, root);
                 }
                 if (element instanceof FileReferenceNode) {
                     FileReferenceNode fileReferenceNode = (FileReferenceNode) element;
@@ -142,14 +141,33 @@ public class ProtoErrorsAnnotator implements Annotator {
         }
     }
 
-    private void checkReference(PsiElement element) {
+    private void checkReference(PsiElement element, ProtoRootNode rootNode) {
         PsiReference ref = element.getReference();
         if (ref == null || ref.isSoft()) {
             return;
         }
-        if (ref.resolve() == null) {
-            String message = message("error.unresolved.reference");
-            markError(element.getNode(), null, message);
+        String message = message("error.unresolved.reference");
+        if (element instanceof FieldReferenceNode) {
+            if (null == ref.resolve()) {
+                markError(element.getNode(), null, message);
+            }
+        } else {
+            String typeReferenceText = element.getText();
+            if (PsiUtil.getMessageAndEnumNames(rootNode).contains(typeReferenceText)) {
+                return;
+            }
+            //need recheck because some bugs(import nodes` parent also available),don`t believe the result of ref.resolve()
+            Set<String> importableMessageAndEnumNames = PsiUtil.getImportableMessageAndEnumNames(rootNode);
+            boolean checkSuccess = importableMessageAndEnumNames.contains(typeReferenceText);
+            if (!checkSuccess) {
+                String importableFileRelativePath = getFileRelativePathOfFieldImportable((TypeReferenceNode) element, rootNode);
+                if (null == importableFileRelativePath) {
+                    markError(element.getNode(), null, message);
+                } else {
+                    //add quick fix
+                    markErrorAndSupportFix(element.getNode(), null, message, new TypeReferenceImportQuickFix(importableFileRelativePath));
+                }
+            }
         }
     }
 
@@ -362,6 +380,17 @@ public class ProtoErrorsAnnotator implements Annotator {
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR);
     }
 
+    private void markErrorAndSupportFix(ASTNode parent, @Nullable ASTNode node, String message, IntentionAction fixAction) {
+        Annotation annotation;
+        if (node == null) {
+            annotation = holder.createErrorAnnotation(parent, message);
+        } else {
+            annotation = holder.createErrorAnnotation(node, message);
+        }
+        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR);
+        annotation.registerFix(fixAction);
+    }
+
     @VisibleForTesting
     boolean isValidTagValue(int tag) {
         return tag >= MIN_TAG && tag <= MAX_TAG
@@ -423,20 +452,14 @@ public class ProtoErrorsAnnotator implements Annotator {
         }
     }
 
-    private void checkFieldImport(TypeReferenceNode typeReferenceNode, ProtoRootNode rootNode) {
+    private String getFileRelativePathOfFieldImportable(TypeReferenceNode typeReferenceNode, ProtoRootNode rootNode) {
         PsiElement firstChild = typeReferenceNode.getFirstChild();
         if (null != firstChild
                 && null != firstChild.getNode()
                 && firstChild.getNode() instanceof CompositeElement) {
-            //add current file
-            Set<String> messageAndEnumNames = new TreeSet<>(PsiUtil.getMessageAndEnumNames(rootNode));
-            // add import
-            Set<String> availableImportMessageAndEnumNames = PsiUtil.getAvailableImportMessageAndEnumNames(rootNode);
-            messageAndEnumNames.addAll(availableImportMessageAndEnumNames);
-            if (!messageAndEnumNames.contains(typeReferenceNode.getText().trim())) {
-                String message = message("error.unresolved.reference");
-                markError(typeReferenceNode.getNode(), typeReferenceNode.getNode(), message);
-            }
+            return VFSUtil.getRelativePathWithImportableNodeText(rootNode.getProject(),
+                    typeReferenceNode.getText().trim());
         }
+        return null;
     }
 }

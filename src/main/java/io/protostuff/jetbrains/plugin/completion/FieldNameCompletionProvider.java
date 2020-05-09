@@ -18,7 +18,7 @@ public class FieldNameCompletionProvider extends CompletionProvider<CompletionPa
     protected void addCompletions(@NotNull CompletionParameters completionParameters,
                                   @NotNull ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
-        PsiElement grandParentElement = completionParameters.getPosition().getParent().getParent();
+        PsiElement grandParentElement = ProtoCompletionProviderUtil.getSuperParent(2, completionParameters.getPosition());
         if (grandParentElement.getClass() == GenericNameNode.class) {
             for (PsiElement child : grandParentElement.getParent().getChildren()) {
                 if(child.getClass() == TypeReferenceNode.class){

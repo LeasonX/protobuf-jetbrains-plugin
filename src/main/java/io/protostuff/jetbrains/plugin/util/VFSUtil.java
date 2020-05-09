@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class VFSUtil {
 
@@ -41,6 +42,31 @@ public final class VFSUtil {
 
     public static Map<String, Set<ImportableNode>> getImportableNodeMap(Project project) {
         return CACHE_IMPORTABLE_NODE_MAP.get(project);
+    }
+
+    public static String getRelativePathWithImportableNodeText(Project project, String importableNodeText) {
+        Map<String, Set<ImportableNode>> importableNodeMap = getImportableNodeMap(project);
+        for (Map.Entry<String, Set<ImportableNode>> entry : importableNodeMap.entrySet()) {
+            Set<ImportableNode> importableNodes = entry.getValue();
+            Map<String, List<ImportableNode>> nameImportableNodesMap = importableNodes
+                    .stream()
+                    .collect(Collectors.groupingBy(ImportableNode::getName));
+            List<ImportableNode> importableNodeList = nameImportableNodesMap.get(importableNodeText);
+            if (CollectionUtils.isNotEmpty(importableNodeList)) {
+                return importableNodeList.get(0).getRelativePath();
+            }
+        }
+        return null;
+    }
+
+
+    public static Set<String> getAllImportableNodeText(Project project) {
+        Map<String, Set<ImportableNode>> importableNodeMap = getImportableNodeMap(project);
+        //get all importable node
+        Collection<Set<ImportableNode>> importableNodeMapValues = importableNodeMap.values();
+        Set<ImportableNode> allImportableNodes = new HashSet<>();
+        importableNodeMapValues.forEach(allImportableNodes::addAll);
+        return allImportableNodes.stream().map(ImportableNode::getName).collect(Collectors.toSet());
     }
 
     public static void flushProtoPathVFSCache(Project project, String folderPath) {

@@ -5,7 +5,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -15,7 +14,7 @@ import io.protostuff.jetbrains.plugin.psi.ImportNode;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
 import io.protostuff.jetbrains.plugin.psi.SyntaxStatement;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public final class ProtoCompletionProviderUtil {
 
@@ -56,49 +55,8 @@ public final class ProtoCompletionProviderUtil {
                         (insertionContext, lookupElement) -> {
                             //get psi file
                             PsiFile psiFile = insertionContext.getFile();
-                            ProtoRootNode protoRootNode = PsiTreeUtil.getChildOfType(psiFile, ProtoRootNode.class);
-                            ImportNode[] importNodes = PsiTreeUtil.getChildrenOfType(protoRootNode, ImportNode.class);
                             Editor editor = insertionContext.getEditor();
-                            if (null == importNodes || 0 == importNodes.length) {
-                                //insert after `syntax` statement
-                                SyntaxStatement syntaxStatement = PsiTreeUtil.getChildOfType(protoRootNode, SyntaxStatement.class);
-                                int syntaxStatementTextLength = 0;
-                                int syntaxStatementTextOffset = 0;
-                                if (null != syntaxStatement) {
-                                    syntaxStatementTextLength = syntaxStatement.getTextLength();
-                                    syntaxStatementTextOffset = syntaxStatement.getTextOffset();
-
-                                }
-                                editor.getDocument().insertString(syntaxStatementTextLength + syntaxStatementTextOffset,
-                                        String.format(IMPORT_SYNTAX_TEMPLATE, node.getRelativePath()));
-                            } else {
-                                //check if must import
-                                boolean alreadyImportOrSelf = false;
-                                String virtualFilePath = psiFile.getVirtualFile().getCanonicalPath();
-                                if (null != virtualFilePath && null != node.getRelativePath()) {
-                                    String fixedVirtualFilePath = VFSUtil.replaceFileSeparator(virtualFilePath);
-                                    //self
-                                    if (fixedVirtualFilePath.contains(node.getRelativePath())) {
-                                        alreadyImportOrSelf = true;
-                                    } else {
-                                        //already import
-                                        for (ImportNode importNode : importNodes) {
-                                            if (importNode.getText().contains(node.getRelativePath())) {
-                                                alreadyImportOrSelf = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!alreadyImportOrSelf) {
-                                    //insert after last `import` statement
-                                    ImportNode lastImportNode = importNodes[importNodes.length - 1];
-                                    int lastImportNodeTextLength = lastImportNode.getTextLength();
-                                    int lastImportNodeTextOffset = lastImportNode.getTextOffset();
-                                    editor.getDocument().insertString(lastImportNodeTextOffset + lastImportNodeTextLength,
-                                            String.format(IMPORT_SYNTAX_TEMPLATE, node.getRelativePath()));
-                                }
-                            }
+                            autoCompleteImportNode(psiFile, editor, node.getRelativePath());
                         });
     }
 
@@ -133,5 +91,53 @@ public final class ProtoCompletionProviderUtil {
             element = parent;
         }
         return parent;
+    }
+
+    public static void autoCompleteImportNode(PsiFile psiFile, Editor editor, String importableFileRelativePath) {
+
+        ProtoRootNode protoRootNode = PsiTreeUtil.getChildOfType(psiFile, ProtoRootNode.class);
+        ImportNode[] importNodes = PsiTreeUtil.getChildrenOfType(protoRootNode, ImportNode.class);
+
+        if (null == importNodes || 0 == importNodes.length) {
+            //insert after `syntax` statement
+            SyntaxStatement syntaxStatement = PsiTreeUtil.getChildOfType(protoRootNode, SyntaxStatement.class);
+            int syntaxStatementTextLength = 0;
+            int syntaxStatementTextOffset = 0;
+            if (null != syntaxStatement) {
+                syntaxStatementTextLength = syntaxStatement.getTextLength();
+                syntaxStatementTextOffset = syntaxStatement.getTextOffset();
+
+            }
+            //add extra blank line before
+            editor.getDocument().insertString(syntaxStatementTextLength + syntaxStatementTextOffset,
+                    "\n" + String.format(IMPORT_SYNTAX_TEMPLATE, importableFileRelativePath));
+        } else {
+            //check if must import
+            boolean alreadyImportOrSelf = false;
+            String virtualFilePath = psiFile.getVirtualFile().getCanonicalPath();
+            if (null != virtualFilePath && null != importableFileRelativePath) {
+                String fixedVirtualFilePath = VFSUtil.replaceFileSeparator(virtualFilePath);
+                //self
+                if (fixedVirtualFilePath.contains(importableFileRelativePath)) {
+                    alreadyImportOrSelf = true;
+                } else {
+                    //already import
+                    for (ImportNode importNode : importNodes) {
+                        if (importNode.getText().contains(importableFileRelativePath)) {
+                            alreadyImportOrSelf = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!alreadyImportOrSelf) {
+                //insert after last `import` statement
+                ImportNode lastImportNode = importNodes[importNodes.length - 1];
+                int lastImportNodeTextLength = lastImportNode.getTextLength();
+                int lastImportNodeTextOffset = lastImportNode.getTextOffset();
+                editor.getDocument().insertString(lastImportNodeTextOffset + lastImportNodeTextLength,
+                        String.format(IMPORT_SYNTAX_TEMPLATE, importableFileRelativePath));
+            }
+        }
     }
 }
