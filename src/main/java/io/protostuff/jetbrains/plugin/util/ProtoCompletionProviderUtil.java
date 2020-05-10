@@ -95,16 +95,16 @@ public final class ProtoCompletionProviderUtil {
         if (null == importNodes || 0 == importNodes.length) {
             //insert after `syntax` statement
             SyntaxStatement syntaxStatement = PsiTreeUtil.getChildOfType(protoRootNode, SyntaxStatement.class);
-            int syntaxStatementTextLength = 0;
-            int syntaxStatementTextOffset = 0;
             if (null != syntaxStatement) {
-                syntaxStatementTextLength = syntaxStatement.getTextLength();
-                syntaxStatementTextOffset = syntaxStatement.getTextOffset();
-
+                int syntaxStatementTextLength = syntaxStatement.getTextLength();
+                int syntaxStatementTextOffset = syntaxStatement.getTextOffset();
+                //add extra blank line before
+                editor.getDocument().insertString(syntaxStatementTextLength + syntaxStatementTextOffset,
+                        "\n" + String.format(IMPORT_SYNTAX_TEMPLATE, importableFileRelativePath));
+            } else {
+                //add extra blank line after
+                editor.getDocument().insertString(0, String.format(IMPORT_SYNTAX_TEMPLATE, importableFileRelativePath) + "\n");
             }
-            //add extra blank line before
-            editor.getDocument().insertString(syntaxStatementTextLength + syntaxStatementTextOffset,
-                    "\n" + String.format(IMPORT_SYNTAX_TEMPLATE, importableFileRelativePath));
         } else {
             //check if must import
             boolean alreadyImportOrSelf = false;
