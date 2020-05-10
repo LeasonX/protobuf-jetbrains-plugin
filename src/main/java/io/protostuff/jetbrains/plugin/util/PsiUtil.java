@@ -97,7 +97,7 @@ public final class PsiUtil {
         return result;
     }
 
-    public static void addPsiChangeListener(Project project, String protoFolderPath) {
+    public static void addPsiChangeListener(@NotNull Project project, @NotNull String protoFolderPath) {
         PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
             @Override
             protected void onChange(@Nullable PsiFile psiFile) {

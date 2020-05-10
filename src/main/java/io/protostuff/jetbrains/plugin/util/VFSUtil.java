@@ -47,10 +47,7 @@ public final class VFSUtil {
 //        return allImportableNodes.stream().map(ImportableNode::getName).collect(Collectors.toSet());
 //    }
 
-    public static void flushProtoPathVFSCache(Project project, String folderPath) {
-        if (null == folderPath) {
-            return;
-        }
+    public static void flushProtoPathVFSCache(@NotNull Project project, @NotNull String folderPath) {
         Set<String> projectCacheFileRelativePaths = new HashSet<>();
         Set<String> projectCacheFileAbstractPaths = new HashSet<>();
         Path path = Paths.get(folderPath);
@@ -77,7 +74,7 @@ public final class VFSUtil {
         return filePath.replaceAll("\\\\", "/");
     }
 
-    public static void addVFSChangeListener(Project project, String protoFolderPath) {
+    public static void addVFSChangeListener(@NotNull Project project, @NotNull String protoFolderPath) {
         project.getMessageBus().connect().subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
@@ -94,9 +91,9 @@ public final class VFSUtil {
         });
     }
 
-    public static String getSimpleFileName(String filePath){
+    public static String getSimpleFileName(String filePath) {
         int lastSlashIndex = filePath.lastIndexOf('/');
-        return -1 == lastSlashIndex ? filePath :filePath.substring(lastSlashIndex + 1);
+        return -1 == lastSlashIndex ? filePath : filePath.substring(lastSlashIndex + 1);
     }
 
 }

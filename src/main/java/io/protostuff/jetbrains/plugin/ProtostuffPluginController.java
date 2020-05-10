@@ -102,10 +102,12 @@ public class ProtostuffPluginController implements ProjectComponent {
         ProtobufSettings settings = ProtobufSettings.getInstance(project);
         if (null != settings) {
             String protoFolder = settings.getProtoFolder();
-            VFSUtil.flushProtoPathVFSCache(project, protoFolder);
-            PsiUtil.flushAllImportableMessageOrEnumCache(project, protoFolder);
-            VFSUtil.addVFSChangeListener(project, protoFolder);
-            PsiUtil.addPsiChangeListener(project, protoFolder);
+            if (null != protoFolder) {
+                VFSUtil.flushProtoPathVFSCache(project, protoFolder);
+                PsiUtil.flushAllImportableMessageOrEnumCache(project, protoFolder);
+                VFSUtil.addVFSChangeListener(project, protoFolder);
+                PsiUtil.addPsiChangeListener(project, protoFolder);
+            }
         }
     }
 
