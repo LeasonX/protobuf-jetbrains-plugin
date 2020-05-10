@@ -7,7 +7,7 @@
 ---
 
 ### 使用
-从 [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4581290/protobuf-jetbrains-plugin-0.13.0.zip) 下载完拖入idea就完事了(老版本百度怎么idea装本地插件)
+从 [protobuf-jetbrains-plugin](https://github.com/LeasonX/protobuf-jetbrains-plugin/files/4605293/protobuf-jetbrains-plugin-1.0.0.zip) 下载完拖入idea(老版本百度怎么idea装本地插件)
 
 ### 增强功能(proto2)
 
