@@ -4,11 +4,10 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.util.ProcessingContext;
-import io.protostuff.jetbrains.plugin.util.VFSUtil;
+import io.protostuff.jetbrains.plugin.cache.ProtoInfoCache;
 import io.protostuff.jetbrains.plugin.util.ProtoCompletionProviderUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class FileReferenceCompletionProvider extends CompletionProvider<Completi
                                   @NotNull ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
         //ensure get newest setting always
-        Set<String> filesRelativePathsOfFolder = VFSUtil.getFilesRelativePathsOfFolder(completionParameters.getPosition().getProject());
+        Set<String> filesRelativePathsOfFolder = ProtoInfoCache.getProjectCacheFileRelativePaths(completionParameters.getPosition().getProject());
         completionResultSet.addAllElements(filesRelativePathsOfFolder.stream()
                 .map(ProtoCompletionProviderUtil::lookupElementWithSlash)
                 .collect(Collectors.toSet()));

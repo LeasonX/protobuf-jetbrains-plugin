@@ -1,13 +1,24 @@
 package io.protostuff.jetbrains.plugin.util;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
+import com.intellij.psi.util.PsiTreeUtil;
+import io.protostuff.jetbrains.plugin.ProtoFileType;
 import io.protostuff.jetbrains.plugin.bean.ImportableNode;
+import io.protostuff.jetbrains.plugin.cache.ProtoInfoCache;
 import io.protostuff.jetbrains.plugin.enums.ImportableType;
 import io.protostuff.jetbrains.plugin.psi.EnumNode;
 import io.protostuff.jetbrains.plugin.psi.ImportNode;
 import io.protostuff.jetbrains.plugin.psi.MessageNode;
 import io.protostuff.jetbrains.plugin.psi.ProtoRootNode;
 import io.protostuff.jetbrains.plugin.settings.ProtobufSettings;
+import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -72,6 +83,7 @@ public final class PsiUtil {
 
     /**
      * get current file import proto files` importable message and enum names
+     *
      * @param protoRootNode proto root node of current file
      * @return importable message and enum names of current file import proto files
      */
@@ -83,5 +95,51 @@ public final class PsiUtil {
             result.addAll(getMessageAndEnumNames(targetProto));
         }
         return result;
+    }
+
+    public static void addPsiChangeListener(Project project, String protoFolderPath) {
+        PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
+            @Override
+            protected void onChange(@Nullable PsiFile psiFile) {
+                if (null != psiFile) {
+                    if (!ProtoFileType.FILE_EXTENSION.equalsIgnoreCase(psiFile.getFileType().getName())
+                            || !VFSUtil.replaceFileSeparator(psiFile.getVirtualFile().getPath().toLowerCase()).contains(protoFolderPath.toLowerCase())) {
+                        return;
+                    }
+                    flushImportableMessageOrEnumCacheFromPsiFile(project, psiFile, protoFolderPath);
+                }
+            }
+        });
+    }
+
+    public static void flushImportableMessageOrEnumCacheFromPsiFile(@NotNull Project project, @NotNull PsiFile psiFile, String folderPath) {
+        //get all importable message and enum
+        ProtoRootNode protoRootNode = PsiTreeUtil.getChildOfType(psiFile, ProtoRootNode.class);
+        Set<ImportableNode> messageAndEnumNames = PsiUtil.getImportableNodes(protoRootNode, folderPath);
+        Map<String, Set<ImportableNode>> filePathMessageAndEnumNamesMap = ProtoInfoCache.getImportableNodeMap(project);
+        if (null == filePathMessageAndEnumNamesMap) {
+            filePathMessageAndEnumNamesMap = new HashMap<>();
+        }
+        filePathMessageAndEnumNamesMap.put(VFSUtil.replaceFileSeparator(psiFile.getVirtualFile().getPath()), messageAndEnumNames);
+        ProtoInfoCache.putProjectImportableNodeMap(project, filePathMessageAndEnumNamesMap);
+    }
+
+    public static void flushAllImportableMessageOrEnumCache(@NotNull Project project, @NotNull String folderPath) {
+        //full flush(first)
+        Set<String> projectProtoFilesAbstractPath = ProtoInfoCache.getProjectCacheFileAbstractPaths(project);
+        if (CollectionUtils.isNotEmpty(projectProtoFilesAbstractPath)) {
+            projectProtoFilesAbstractPath.forEach(abstractPath -> {
+                VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(abstractPath);
+                if (null != virtualFile) {
+                    PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+                    if (null != psiFile) {
+                        PsiUtil.flushImportableMessageOrEnumCacheFromPsiFile(project, psiFile, folderPath);
+                    }
+                }
+            });
+            //clean file`s importable nodes if has been deleted
+            Map<String, Set<ImportableNode>> importableNodeMap = ProtoInfoCache.getImportableNodeMap(project);
+            importableNodeMap.keySet().removeIf(key ->!projectProtoFilesAbstractPath.contains(key));
+        }
     }
 }

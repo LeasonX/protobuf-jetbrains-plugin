@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import javax.swing.event.HyperlinkEvent;
 
 import io.protostuff.jetbrains.plugin.settings.ProtobufSettings;
+import io.protostuff.jetbrains.plugin.util.PsiUtil;
 import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -102,8 +103,9 @@ public class ProtostuffPluginController implements ProjectComponent {
         if (null != settings) {
             String protoFolder = settings.getProtoFolder();
             VFSUtil.flushProtoPathVFSCache(project, protoFolder);
-            VFSUtil.flushAllImportableMessageOrEnumCache(project, protoFolder);
+            PsiUtil.flushAllImportableMessageOrEnumCache(project, protoFolder);
             VFSUtil.addVFSChangeListener(project, protoFolder);
+            PsiUtil.addPsiChangeListener(project, protoFolder);
         }
     }
 

@@ -29,13 +29,7 @@ public final class ProtoCompletionProviderUtil {
     }
 
     public static LookupElement lookupImportableWithSpace(String fileName, ImportableNode node) {
-        int startIndex = fileName.lastIndexOf('/');
-        String simpleFileName;
-        if (-1 == startIndex) {
-            simpleFileName = fileName;
-        } else {
-            simpleFileName = fileName.substring(startIndex + 1);
-        }
+        String simpleFileName = VFSUtil.getSimpleFileName(fileName);
         Icon nodeTypeIcon;
         switch (node.getImportableType()) {
             case ENUM:

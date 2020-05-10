@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import javax.swing.*;
 
 import io.protostuff.jetbrains.plugin.util.ProtocUtil;
+import io.protostuff.jetbrains.plugin.util.PsiUtil;
 import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,8 +57,9 @@ public class SettingsForm {
                 protoFolderPath = selectedFolder.getPath();
                 if (null != project) {
                     VFSUtil.flushProtoPathVFSCache(project, protoFolderPath);
-                    VFSUtil.flushAllImportableMessageOrEnumCache(project, protoFolderPath);
+                    PsiUtil.flushAllImportableMessageOrEnumCache(project, protoFolderPath);
                     VFSUtil.addVFSChangeListener(project, protoFolderPath);
+                    PsiUtil.addPsiChangeListener(project, protoFolderPath);
                 }
                 protoFolderTextField.setText(protoFolderPath);
                 //auto complete protoc and java file setting

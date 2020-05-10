@@ -7,8 +7,8 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.util.ProcessingContext;
 import io.protostuff.compiler.model.ScalarFieldType;
 import io.protostuff.jetbrains.plugin.bean.ImportableNode;
+import io.protostuff.jetbrains.plugin.cache.ProtoInfoCache;
 import io.protostuff.jetbrains.plugin.util.ProtoCompletionProviderUtil;
-import io.protostuff.jetbrains.plugin.util.VFSUtil;
 import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,13 +28,11 @@ public class TypeReferenceCompletionProvider extends CompletionProvider<Completi
                                   @NotNull ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        Map<String, Set<ImportableNode>> importableNodeMap = VFSUtil.getImportableNodeMap(completionParameters.getPosition().getProject());
+        Map<String, Set<ImportableNode>> importableNodeMap = ProtoInfoCache.getImportableNodeMap(completionParameters.getPosition().getProject());
         if (MapUtils.isNotEmpty(importableNodeMap)) {
-            importableNodeMap.forEach((fileName, nodes) -> {
-                nodes.forEach((node) -> {
-                    completionResultSet.addElement(ProtoCompletionProviderUtil.lookupImportableWithSpace(fileName, node));
-                });
-            });
+            importableNodeMap.forEach((fileName, nodes) -> nodes.forEach((node) -> {
+                completionResultSet.addElement(ProtoCompletionProviderUtil.lookupImportableWithSpace(fileName, node));
+            }));
         }
 
         //add scalar field type
