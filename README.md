@@ -37,7 +37,5 @@
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/error%20hint.png)
 
 > 基本的代码补全
->
->message需要提示来自其他proto文件的enum或message时, 需要先写全import;
 
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/code%20completion.png)
