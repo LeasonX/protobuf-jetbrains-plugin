@@ -36,6 +36,6 @@
 
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/error%20hint.png)
 
-> 基本的代码补全
+> proto2语法代码补全
 
 ![image](https://raw.githubusercontent.com/wiki/LeasonX/protobuf-jetbrains-plugin/code%20completion.png)
